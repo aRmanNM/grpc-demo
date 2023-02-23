@@ -6,6 +6,9 @@ package demo;
 
 service Demo {
   rpc SayHello (HelloRequest) returns (HelloReply);
+  rpc StreamFromServer (CounterRequest) returns (stream CounterResponse);
+  rpc StreamFromClient (stream NumbersRequest) returns (SumResponse);
+  rpc StreamBothWays (stream PingRequest) returns (stream PongResponse);
 }
 
 message HelloRequest {
@@ -13,5 +16,31 @@ message HelloRequest {
 }
 
 message HelloReply {
+  string message = 1;
+}
+
+message CounterRequest {
+  int32 start = 1;
+  int32 finish = 2;
+}
+
+message CounterResponse {
+  int32 counter = 1;
+}
+
+message NumbersRequest {
+  int32 number = 1;
+}
+
+message SumResponse {
+  int32 sum = 1;
+  repeated int32 numbers = 2;
+}
+
+message PingRequest {
+  string message = 1;
+}
+
+message PongResponse {
   string message = 1;
 }
