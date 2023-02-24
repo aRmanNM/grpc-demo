@@ -6,6 +6,7 @@ package demo;
 
 service Demo {
   rpc SayHello (HelloRequest) returns (HelloReply);
+  rpc SayHelloAuthenticated (HelloRequest) returns (HelloReply);
   rpc StreamFromServer (CounterRequest) returns (stream CounterResponse);
   rpc StreamFromClient (stream NumbersRequest) returns (SumResponse);
   rpc StreamBothWays (stream PingRequest) returns (stream PongResponse);

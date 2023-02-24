@@ -1,4 +1,5 @@
-﻿using client;
+﻿using System.Text;
+using client;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Spectre.Console;
@@ -26,6 +27,7 @@ internal class Program
             Console.WriteLine("1 - server streaming counter");
             Console.WriteLine("2 - client streaming summation");
             Console.WriteLine("3 - bidirectional ping/ping");
+            Console.WriteLine("4 - say hello (authenticated)");
             Console.WriteLine("exit - Exit the program");
 
             var action = Console.ReadLine();
@@ -47,6 +49,9 @@ internal class Program
                 case "3":
                     await StreamBidirectionalPingPong(client);
                     break;
+                case "4":
+                    await SayHelloAuthenticated(client);
+                    break;
                 default:
                     Console.WriteLine("Invalid action specified");
                     break;
@@ -56,6 +61,29 @@ internal class Program
             {
 
             }
+        }
+    }
+
+    private static async Task SayHelloAuthenticated(Demo.DemoClient client)
+    {
+        Console.Write("enter your name (anything is valid, except 'grpc'): ");
+        var name = Console.ReadLine() ?? string.Empty;
+
+        var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(name));
+
+        var headers = new Metadata();
+        headers.Add("Authorization", $"Bearer {token}");
+
+        try
+        {
+            var response = await client.SayHelloAuthenticatedAsync(
+                    new HelloRequest { Name = "console_client" }, headers);
+
+            Console.WriteLine("\n ----- \nServer response is: {0}\n ----- \n", response.Message);
+        }
+        catch (RpcException ex)
+        {
+            Console.WriteLine("\n ----- \nServer response is: {0}\n ----- \n", ex.StatusCode);
         }
     }
 

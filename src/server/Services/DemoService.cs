@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Google.Protobuf.Collections;
 using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 
 namespace server.Services;
 
@@ -61,5 +63,16 @@ public class DemoService : Demo.DemoBase
                 Message = "Pong"
             });
         }
+    }
+
+    [Authorize(Policy = "none")]
+    public override Task<HelloReply> SayHelloAuthenticated(HelloRequest request, ServerCallContext context)
+    {
+        var user = context.GetHttpContext().User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+
+        return Task.FromResult(new HelloReply
+        {
+            Message = $"hello {user} from {request.Name}"
+        });
     }
 }

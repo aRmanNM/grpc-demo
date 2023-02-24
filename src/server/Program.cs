@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +16,25 @@ builder.Services.AddGrpc(options =>
 
 builder.Services.AddSingleton<LoggingInterceptor>();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+    {
+        opt.SecurityTokenValidators.Clear();
+        opt.SecurityTokenValidators.Add(new DemoTokenValidator());
+    });
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("none", builder =>
+    {
+        builder.RequireClaim(ClaimTypes.NameIdentifier);
+    });
+});
+
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<DemoService>();
